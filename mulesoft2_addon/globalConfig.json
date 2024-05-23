@@ -12,21 +12,24 @@
                         ],
                         "header": [
                             {
-                                "label": "Name",
+                                "label": "Account Name",
                                 "field": "name"
+                            },
+                            {
+                                "label": "Username",
+                                "field": "clientid"
+                            },
+                            {
+                                "label": "Password",
+                                "field": "clientsecret"
                             }
                         ]
                     },
                     "entity": [
                         {
                             "type": "text",
-                            "label": "Name",
+                            "label": "Account Name",
                             "validators": [
-                                {
-                                    "type": "regex",
-                                    "errorMsg": "Account Name must begin with a letter and consist exclusively of alphanumeric characters and underscores.",
-                                    "pattern": "^[a-zA-Z]\\w*$"
-                                },
                                 {
                                     "type": "string",
                                     "errorMsg": "Length of input name should be between 1 and 100",
@@ -35,14 +38,22 @@
                                 }
                             ],
                             "field": "name",
-                            "help": "A unique name for the account.",
+                            "help": "A unique identifier for the account",
                             "required": true
                         },
                         {
                             "type": "text",
-                            "label": "API key",
-                            "field": "api_key",
-                            "help": "API key",
+                            "label": "Username or Client ID",
+                            "field": "clientid",
+                            "help": "Username or Client ID (if using MFA) for the mulesoft account",
+                            "required": true,
+                            "encrypted": true
+                        },
+                        {
+                            "type": "text",
+                            "label": "Password or Client Secret",
+                            "field": "clientsecret",
+                            "help": "Password or Client Secret (if using MFA) for the mulesoft account",
                             "required": true,
                             "encrypted": true
                         }
@@ -59,11 +70,11 @@
         "inputs": {
             "services": [
                 {
-                    "name": "mulesoft_input",
+                    "name": "discovery_input",
                     "entity": [
                         {
                             "type": "text",
-                            "label": "Name",
+                            "label": "Input Name",
                             "validators": [
                                 {
                                     "type": "regex",
@@ -78,7 +89,7 @@
                                 }
                             ],
                             "field": "name",
-                            "help": "A unique name for the data input.",
+                            "help": "A unique name for the discovery input.",
                             "required": true
                         },
                         {
@@ -91,9 +102,9 @@
                                     "pattern": "^\\-[1-9]\\d*$|^\\d*$"
                                 }
                             ],
-                            "defaultValue": "300",
+                            "defaultValue": "86400",
                             "field": "interval",
-                            "help": "Time interval of the data input, in seconds.",
+                            "help": "How often to check for new enviornments/organisations, in seconds.",
                             "required": true
                         },
                         {
@@ -107,7 +118,7 @@
                             "required": true
                         }
                     ],
-                    "title": "mulesoft_input"
+                    "title": "Discovery Input"
                 }
             ],
             "title": "Inputs",
@@ -129,12 +140,16 @@
                         "field": "interval"
                     },
                     {
-                        "label": "Index",
-                        "field": "index"
+                        "label": "Account",
+                        "field": "account"
                     },
                     {
                         "label": "Status",
-                        "field": "disabled"
+                        "field": "disabled",
+                        "mapping": {
+                            "true": "Disabled",
+                            "false": "Enabled"
+                        }
                     }
                 ],
                 "moreInfo": [
@@ -147,8 +162,8 @@
                         "field": "interval"
                     },
                     {
-                        "label": "Index",
-                        "field": "index"
+                        "label": "Account",
+                        "field": "account"
                     },
                     {
                         "label": "Status",
@@ -172,7 +187,7 @@
     "meta": {
         "name": "mulesoft2_addon",
         "restRoot": "mulesoft2_addon",
-        "version": "0.0.1",
+        "version": "0.0.0R0d75ebf",
         "displayName": "Add-On for Mulesoft 2.0",
         "schemaVersion": "0.0.6",
         "_uccVersion": "5.44.0"

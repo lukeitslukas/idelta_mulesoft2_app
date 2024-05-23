@@ -6,7 +6,6 @@ Home-page: http://github.com/splunk/splunk-sdk-python
 Author: Splunk, Inc.
 Author-email: devinfo@splunk.com
 License: http://www.apache.org/licenses/LICENSE-2.0
-Platform: UNKNOWN
 Classifier: Programming Language :: Python
 Classifier: Development Status :: 6 - Mature
 Classifier: Environment :: Other Environment
@@ -16,6 +15,4 @@ Classifier: Operating System :: OS Independent
 Classifier: Topic :: Software Development :: Libraries :: Python Modules
 Classifier: Topic :: Software Development :: Libraries :: Application Frameworks
 Requires-Dist: deprecation
-
-UNKNOWN
 

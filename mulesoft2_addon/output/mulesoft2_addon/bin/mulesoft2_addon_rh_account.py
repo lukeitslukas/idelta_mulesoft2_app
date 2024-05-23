@@ -16,7 +16,14 @@ util.remove_http_proxy_env_vars()
 
 fields = [
     field.RestField(
-        'api_key',
+        'clientid',
+        required=True,
+        encrypted=True,
+        default=None,
+        validator=None
+    ), 
+    field.RestField(
+        'clientsecret',
         required=True,
         encrypted=True,
         default=None,

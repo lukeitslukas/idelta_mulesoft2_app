@@ -1,3 +1,4 @@
 splunktaucclib
 splunk-sdk
 solnlib
+requests

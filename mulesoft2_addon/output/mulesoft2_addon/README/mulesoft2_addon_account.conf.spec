@@ -1,2 +1,3 @@
 [<name>]
-api_key = 
+clientid = 
+clientsecret = 

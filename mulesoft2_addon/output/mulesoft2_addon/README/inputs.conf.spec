@@ -1,3 +1,3 @@
-[mulesoft_input://<name>]
+[discovery_input://<name>]
 interval = 
 account = 

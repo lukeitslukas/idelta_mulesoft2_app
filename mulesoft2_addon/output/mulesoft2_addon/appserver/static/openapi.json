@@ -2,7 +2,7 @@
     "openapi": "3.0.0",
     "info": {
         "title": "mulesoft2_addon",
-        "version": "0.0.1",
+        "version": "0.0.0R0d75ebf",
         "description": "Add-On for Mulesoft 2.0",
         "contact": {
             "name": ""
@@ -30,7 +30,11 @@
                     "name": {
                         "type": "string"
                     },
-                    "api_key": {
+                    "clientid": {
+                        "type": "string",
+                        "format": "password"
+                    },
+                    "clientsecret": {
                         "type": "string",
                         "format": "password"
                     }
@@ -39,7 +43,11 @@
             "account_without_name": {
                 "type": "object",
                 "properties": {
-                    "api_key": {
+                    "clientid": {
+                        "type": "string",
+                        "format": "password"
+                    },
+                    "clientsecret": {
                         "type": "string",
                         "format": "password"
                     }
@@ -75,7 +83,7 @@
                     }
                 }
             },
-            "mulesoft_input": {
+            "discovery_input": {
                 "type": "object",
                 "properties": {
                     "name": {
@@ -96,7 +104,7 @@
                     }
                 }
             },
-            "mulesoft_input_without_name": {
+            "discovery_input_without_name": {
                 "type": "object",
                 "properties": {
                     "interval": {
@@ -114,7 +122,7 @@
                     }
                 }
             },
-            "mulesoft_input_without_disabled": {
+            "discovery_input_without_disabled": {
                 "type": "object",
                 "properties": {
                     "name": {
@@ -451,11 +459,11 @@
                 }
             ]
         },
-        "/mulesoft2_addon_mulesoft_input": {
+        "/mulesoft2_addon_discovery_input": {
             "get": {
                 "responses": {
                     "200": {
-                        "description": "Get list of items for mulesoft_input",
+                        "description": "Get list of items for discovery_input",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -470,7 +478,7 @@
                                                         "type": "string"
                                                     },
                                                     "content": {
-                                                        "$ref": "#/components/schemas/mulesoft_input_without_name"
+                                                        "$ref": "#/components/schemas/discovery_input_without_name"
                                                     }
                                                 }
                                             }
@@ -481,13 +489,13 @@
                         }
                     }
                 },
-                "description": "Get list of items for mulesoft_input",
+                "description": "Get list of items for discovery_input",
                 "deprecated": false
             },
             "post": {
                 "responses": {
                     "200": {
-                        "description": "Create item in mulesoft_input",
+                        "description": "Create item in discovery_input",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -502,7 +510,7 @@
                                                         "type": "string"
                                                     },
                                                     "content": {
-                                                        "$ref": "#/components/schemas/mulesoft_input_without_name"
+                                                        "$ref": "#/components/schemas/discovery_input_without_name"
                                                     }
                                                 }
                                             }
@@ -513,12 +521,12 @@
                         }
                     }
                 },
-                "description": "Create item in mulesoft_input",
+                "description": "Create item in discovery_input",
                 "requestBody": {
                     "content": {
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "$ref": "#/components/schemas/mulesoft_input_without_disabled"
+                                "$ref": "#/components/schemas/discovery_input_without_disabled"
                             }
                         }
                     },
@@ -542,11 +550,11 @@
                 }
             ]
         },
-        "/mulesoft2_addon_mulesoft_input/{name}": {
+        "/mulesoft2_addon_discovery_input/{name}": {
             "get": {
                 "responses": {
                     "200": {
-                        "description": "Get mulesoft_input item details",
+                        "description": "Get discovery_input item details",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -561,7 +569,7 @@
                                                         "type": "string"
                                                     },
                                                     "content": {
-                                                        "$ref": "#/components/schemas/mulesoft_input_without_name"
+                                                        "$ref": "#/components/schemas/discovery_input_without_name"
                                                     }
                                                 }
                                             }
@@ -572,13 +580,13 @@
                         }
                     }
                 },
-                "description": "Get mulesoft_input item details",
+                "description": "Get discovery_input item details",
                 "deprecated": false
             },
             "post": {
                 "responses": {
                     "200": {
-                        "description": "Update mulesoft_input item",
+                        "description": "Update discovery_input item",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -593,7 +601,7 @@
                                                         "type": "string"
                                                     },
                                                     "content": {
-                                                        "$ref": "#/components/schemas/mulesoft_input_without_name"
+                                                        "$ref": "#/components/schemas/discovery_input_without_name"
                                                     }
                                                 }
                                             }
@@ -604,12 +612,12 @@
                         }
                     }
                 },
-                "description": "Update mulesoft_input item",
+                "description": "Update discovery_input item",
                 "requestBody": {
                     "content": {
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "$ref": "#/components/schemas/mulesoft_input_without_name"
+                                "$ref": "#/components/schemas/discovery_input_without_name"
                             }
                         }
                     },
@@ -620,7 +628,7 @@
             "delete": {
                 "responses": {
                     "200": {
-                        "description": "Delete mulesoft_input item",
+                        "description": "Delete discovery_input item",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -635,7 +643,7 @@
                                                         "type": "string"
                                                     },
                                                     "content": {
-                                                        "$ref": "#/components/schemas/mulesoft_input_without_name"
+                                                        "$ref": "#/components/schemas/discovery_input_without_name"
                                                     }
                                                 }
                                             }
@@ -646,7 +654,7 @@
                         }
                     }
                 },
-                "description": "Delete mulesoft_input item",
+                "description": "Delete discovery_input item",
                 "deprecated": false
             },
             "parameters": [
