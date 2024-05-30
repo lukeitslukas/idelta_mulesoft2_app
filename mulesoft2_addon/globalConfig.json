@@ -61,6 +61,98 @@
                     "title": "Accounts"
                 },
                 {
+                    "name": "organisation",
+                    "table": {
+                        "actions": [
+                            "edit",
+                            "delete",
+                            "clone"
+                        ],
+                        "header": [
+                            {
+                                "label": "Organisation Name",
+                                "field": "name"
+                            },
+                            {
+                                "label": "Organisation ID",
+                                "field": "organisationid"
+                            }
+                        ]
+                    },
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Organisation Name",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ],
+                            "field": "name",
+                            "help": "A unique identifier for the organisation",
+                            "required": true
+                        },
+                        {
+                            "type": "text",
+                            "label": "Organisation ID",
+                            "field": "organisationid",
+                            "help": "The Organisation ID (found from the Discovery input)",
+                            "required": true,
+                            "encrypted": true
+                        }
+                    ],
+                    "title": "Organisations"
+                },
+                {
+                    "name": "environment",
+                    "table": {
+                        "actions": [
+                            "edit",
+                            "delete",
+                            "clone"
+                        ],
+                        "header": [
+                            {
+                                "label": "Environment Name",
+                                "field": "name"
+                            },
+                            {
+                                "label": "Environment ID",
+                                "field": "environmentid"
+                            }
+                        ]
+                    },
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Environment Name",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ],
+                            "field": "name",
+                            "help": "A unique identifier for the environment",
+                            "required": true
+                        },
+                        {
+                            "type": "text",
+                            "label": "Environment ID",
+                            "field": "environmentid",
+                            "help": "The Environment ID (found from the Discovery input)",
+                            "required": true,
+                            "encrypted": true
+                        }
+                    ],
+                    "title": "Environments"
+                },
+                {
                     "type": "loggingTab"
                 }
             ],
@@ -119,6 +211,77 @@
                         }
                     ],
                     "title": "Discovery Input"
+                },
+                {
+                    "name": "app_logs_input",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Input Name",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Input Name must begin with a letter and consist exclusively of alphanumeric characters and underscores.",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ],
+                            "field": "name",
+                            "help": "A unique name for the app logs input.",
+                            "required": true
+                        },
+                        {
+                            "type": "text",
+                            "label": "Interval",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Interval must be an integer.",
+                                    "pattern": "^\\-[1-9]\\d*$|^\\d*$"
+                                }
+                            ],
+                            "defaultValue": "86400",
+                            "field": "interval",
+                            "help": "How often to grab application logs, in seconds.",
+                            "required": true
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Account to use",
+                            "options": {
+                                "referenceName": "account"
+                            },
+                            "help": "Account to use for this input.",
+                            "field": "account",
+                            "required": true
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Organisation ID to use",
+                            "options": {
+                                "referenceName": "organisation"
+                            },
+                            "help": "Organisation to use for this input.",
+                            "field": "organisation",
+                            "required": true
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Environment ID to use",
+                            "options": {
+                                "referenceName": "environment"
+                            },
+                            "help": "Environment to use for this input.",
+                            "field": "environment",
+                            "required": true
+                        }
+                    ],
+                    "title": "App Logs Input"
                 }
             ],
             "title": "Inputs",
@@ -187,7 +350,7 @@
     "meta": {
         "name": "mulesoft2_addon",
         "restRoot": "mulesoft2_addon",
-        "version": "0.0.0R0d75ebf",
+        "version": "0.1",
         "displayName": "Add-On for Mulesoft 2.0",
         "schemaVersion": "0.0.6",
         "_uccVersion": "5.44.0"

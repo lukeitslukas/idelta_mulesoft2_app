@@ -108,66 +108,63 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
     #   },
     # }
     for input_name, input_item in inputs.inputs.items():
-        if "discovery" in input_name.split("://")[0]:
-            normalized_input_name = input_name.split("://")[-1]
-            logger = logger_for_input(normalized_input_name)
-            try:
-                session_key = inputs.metadata["session_key"]
-                log_level = conf_manager.get_log_level(
-                    logger=logger,
-                    session_key=session_key,
-                    app_name=ADDON_NAME,
-                    conf_name=f"{ADDON_NAME}_settings",
+        normalized_input_name = input_name.split("://")[-1]
+        logger = logger_for_input(normalized_input_name)
+        try:
+            session_key = inputs.metadata["session_key"]
+            log_level = conf_manager.get_log_level(
+                logger=logger,
+                session_key=session_key,
+                app_name=ADDON_NAME,
+                conf_name=f"{ADDON_NAME}_settings",
+            )
+            logger.setLevel(log_level)
+            log.modular_input_start(logger, normalized_input_name)
+            account_details = get_account_api_key(session_key, input_item.get("account"))
+            access_token = get_bearer_token(account_details.get('clientid'), account_details.get('clientsecret'))
+            org_id = get_org_id(access_token)
+            event_writer.write_event(
+                    smi.Event(
+                        data=json.dumps(
+                            {
+                                "organisationID": org_id,
+                                "account": input_item.get("account")
+                            }, ensure_ascii=False, default=str),
+                        index='mulesoft',
+                        sourcetype='discovery-data-org',
+                        time=time.time()
+                    )
                 )
-                logger.setLevel(log_level)
-                log.modular_input_start(logger, normalized_input_name)
-                account_details = get_account_api_key(session_key, input_item.get("account"))
-                log.log_event(logger, {"details": account_details}, logging.DEBUG)
-                access_token = get_bearer_token(account_details.get('clientid'), account_details.get('clientsecret'))
-                log.log_event(logger, {"token": access_token}, logging.DEBUG)
-                org_id = get_org_id(access_token)
+            log.events_ingested(
+                logger,
+                input_name,
+                'discovery-data-org',
+                1,
+                index="mulesoft"
+            )
+            env_ids = get_environment_ids(access_token)
+            for environments in env_ids:
+                data = {
+                    "environmentID": environments['id'],
+                    "environmentName": environments['name'],
+                    "organisationID": org_id,
+                    "account": input_item.get("account")
+                }
                 event_writer.write_event(
-                        smi.Event(
-                            data=json.dumps(
-                                {
-                                    "organisationID": org_id,
-                                    "account": account_details.get('name')
-                                }, ensure_ascii=False, default=str),
-                            index='mulesoft',
-                            sourcetype='discovery-data-org',
-                            time=time.time()
-                        )
+                    smi.Event(
+                        data=json.dumps(data, ensure_ascii=False, default=str),
+                        index='mulesoft',
+                        sourcetype='discovery-data-env',
+                        time=time.time()
                     )
-                log.events_ingested(
-                    logger,
-                    input_name,
-                    'discovery-data-org',
-                    1,
-                    index="mulesoft"
                 )
-                env_ids = get_environment_ids(access_token)
-                for environments in env_ids:
-                    data = {
-                        "environmentID": environments['id'],
-                        "environmentName": environments['name'],
-                        "organisationID": org_id,
-                        "account": account_details.get('name')
-                    }
-                    event_writer.write_event(
-                        smi.Event(
-                            data=json.dumps(data, ensure_ascii=False, default=str),
-                            index='mulesoft',
-                            sourcetype='discovery-data-env',
-                            time=time.time()
-                        )
-                    )
-                log.events_ingested(
-                    logger,
-                    input_name,
-                    'discovery-data-env',
-                    len(env_ids),
-                    index="mulesoft"
-                )
-                log.modular_input_end(logger, normalized_input_name)
-            except Exception as e:
-                log.log_exception(logger, e, msg_before="Exception raised while ingesting data for demo_input: ")
+            log.events_ingested(
+                logger,
+                input_name,
+                'discovery-data-env',
+                len(env_ids),
+                index="mulesoft"
+            )
+            log.modular_input_end(logger, normalized_input_name)
+        except Exception as e:
+            log.log_exception(logger, e, msg_before="Exception raised while ingesting data for demo_input: ")
