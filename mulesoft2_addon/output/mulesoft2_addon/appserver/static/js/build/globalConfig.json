@@ -385,7 +385,7 @@
     "meta": {
         "name": "mulesoft2_addon",
         "restRoot": "mulesoft2_addon",
-        "version": "0.0.0R285a04b",
+        "version": "0.0.0R60449e3",
         "displayName": "Add-On for Mulesoft 2.0",
         "schemaVersion": "0.0.6",
         "_uccVersion": "5.44.0"

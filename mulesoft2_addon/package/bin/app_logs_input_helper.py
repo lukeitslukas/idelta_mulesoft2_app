@@ -1,6 +1,6 @@
 import json
 import csv
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
 from pathlib import Path
 import os
@@ -10,6 +10,7 @@ import time
 
 import import_declare_test
 from solnlib import conf_manager, log
+from solnlib.modular_input import checkpointer
 from splunklib import modularinput as smi
 
 
@@ -65,7 +66,7 @@ def get_specification_id(access_token: str, org_id: str, env_id: str, deployment
     return response['desiredVersion']
 
 
-def get_app_logs(access_token: str, org_id: str, env_id: str, deployment_id: str):
+def get_app_logs(access_token: str, org_id: str, env_id: str, deployment_id: str, last_log: float):
     spec_id = get_specification_id(access_token, org_id, env_id, deployment_id)
     # logs endpoint
     endpoint = f'https://anypoint.mulesoft.com/amc/application-manager/api/v2/organizations/{org_id}/environments/{env_id}/deployments/{deployment_id}/specs/{spec_id}/logs/file'
@@ -74,7 +75,10 @@ def get_app_logs(access_token: str, org_id: str, env_id: str, deployment_id: str
         'Authorization': 'Bearer ' + access_token
     }
 
-    response = requests.get(endpoint, headers=headers)
+    response = requests.get(endpoint, headers=headers, params={'startTime': int(last_log * 1000) + 1})
+    
+    if not response.text:
+        return []
     
     logs = response.text.rstrip('\n').split("\n")
 
@@ -90,9 +94,9 @@ def get_app_logs(access_token: str, org_id: str, env_id: str, deployment_id: str
 def get_timestamp(log_str: str) -> float:
     date_timestamp = re.match(r'\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?Z', log_str).group()
     try:
-        return(datetime.strptime(date_timestamp, "%Y-%m-%dT%H:%M:%S.%fZ").timestamp())
+        return(datetime.strptime(date_timestamp, "%Y-%m-%dT%H:%M:%S.%fZ").replace(tzinfo=timezone.utc).timestamp())
     except:
-        return(datetime.strptime(date_timestamp, "%Y-%m-%dT%H:%M:%SZ").timestamp())
+        return(datetime.strptime(date_timestamp, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc).timestamp())
         
 
 def logger_for_input(input_name: str) -> logging.Logger:
@@ -130,6 +134,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
         normalized_input_name = input_name.split("://")[-1]
         logger = logger_for_input(normalized_input_name)
         try:
+            # initialise splunk logging
             session_key = inputs.metadata["session_key"]
             log_level = conf_manager.get_log_level(
                 logger=logger,
@@ -139,52 +144,48 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
             )
             logger.setLevel(log_level)
             log.modular_input_start(logger, normalized_input_name)
+            
+            # intialise checkpointer
+            checkpoint = checkpointer.KVStoreCheckpointer(
+                "app_log_checkpoints",
+                session_key,
+                ADDON_NAME
+            )
+            
+            # initialise mulesoft details
             account_details = get_config_details('account', session_key, input_item.get("account"))
             org_id = get_config_details('organisation', session_key, input_item.get("organisation")).get('organisationid')
             env_id = get_config_details('environment', session_key, input_item.get("environment")).get('environmentid')
             access_token = get_bearer_token(account_details.get('clientid'), account_details.get('clientsecret'))
+            
+            # go through deployments and ingest logs
             for deployment_name, deployment_id in get_deployments(access_token, org_id, env_id).items():
-                app_logs = get_app_logs(access_token, org_id, env_id, deployment_id)
+                # get checkpoint timestamp or set to 0.0 if not ingested before
+                last_log = checkpoint.get(deployment_id) if checkpoint.get(deployment_id) is not None else 0.0
                 
-                log_dict = {}
-                with open(Path(__file__).parent / "../lookups/log_times.csv", 'r') as log_read:
-                    dictreader = csv.DictReader(log_read)
-                    for row in dictreader:
-                        log_dict[row['deploymentid']] = row['timestamp']
+                app_logs = get_app_logs(access_token, org_id, env_id, deployment_id, last_log)
                 
-                latest_event = 0.0
-                if deployment_id in log_dict:        
-                    latest_event = float(log_dict[deployment_id])
-                index_counter = 0
-                
-                for app_log in app_logs:
-                    if get_timestamp(app_log) > latest_event:
+                if len(app_logs) > 0:
+                    for app_log in app_logs:
                         event_writer.write_event(
                                 smi.Event(
                                     data=app_log,
                                     index='mulesoft',
                                     sourcetype=f'app-logs',
-                                    source=f'{input_name}/{deployment_name}',
+                                    source=f'{input_name}/{deployment_name}/{deployment_id}',
                                     time=get_timestamp(app_log)
                                 )
                             )
-                        index_counter += 1
-                
                     
-                with open(Path(__file__).parent / "../lookups/log_times.csv", 'w') as log_write:
-                    log_dict[deployment_id] = get_timestamp(app_logs[-1])
-                    writer = csv.writer(log_write)
-                    writer.writerow(['deploymentid', 'timestamp'])
-                    for key, value in log_dict.items():
-                        writer.writerow([key, value])
-                    
-                log.events_ingested(
-                    logger,
-                    input_name,
-                    f'app-logs',
-                    index_counter,
-                    index="mulesoft"
-                )
+                    checkpoint.update(deployment_id, get_timestamp(app_logs[-1]))
+                        
+                    log.events_ingested(
+                        logger,
+                        input_name,
+                        f'app-logs',
+                        len(app_logs),
+                        index="mulesoft"
+                    )
             log.modular_input_end(logger, normalized_input_name)
         except Exception as e:
             log.log_exception(logger, e, msg_before="Exception raised while ingesting data for demo_input: ")
