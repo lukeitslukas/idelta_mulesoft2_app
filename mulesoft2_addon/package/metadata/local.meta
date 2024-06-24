@@ -1,0 +1,155 @@
+[app/ui]
+version = 9.0.4.1
+modtime = 1690551938.212217000
+
+[app/launcher]
+version = 9.0.4.1
+modtime = 1690551938.214514000
+
+[app/package/check_for_updates]
+version = 9.0.4.1
+modtime = 1690551938.215335000
+
+[macros/mulesoft_log_events]
+access = read : [ * ], write : [ admin ]
+export = none
+owner = nobody
+version = 9.0.4.1
+modtime = 1690812648.471498000
+
+[macros/mulesoft_stats_events]
+access = read : [ * ], write : [ admin ]
+export = none
+owner = nobody
+version = 9.0.4.1
+modtime = 1690812655.968112000
+
+[props/mulesoft%3Adiscovery/FIELDALIAS-mulesoft_discovery_alias]
+export = none
+owner = nobody
+version = 9.0.4.1
+modtime = 1696339127.334292000
+
+[props/mulesoft%3Aenvironments/FIELDALIAS-mulesoft_environments_alias]
+export = none
+owner = nobody
+version = 9.0.4.1
+modtime = 1696339127.346573000
+
+[props/mulesoft%3Amulesoftapplications/FIELDALIAS-mulesoft_mulesoftapplications_alias]
+export = none
+owner = nobody
+version = 9.0.4.1
+modtime = 1696339127.369869000
+
+[props/mulesoft%3Aorganization/FIELDALIAS-mulesoft_organization_alias]
+export = none
+owner = nobody
+version = 9.0.4.1
+modtime = 1696339127.385346000
+
+[transforms/mulesoft_json_mulesoftErrorFields]
+access = read : [ * ], write : [ admin, power ]
+export = system
+owner = nobody
+version = 9.0.4.1
+modtime = 1696339971.455235000
+
+[transforms/mulesoft_log4j_domain_fromElement]
+access = read : [ * ], write : [ admin, power ]
+export = system
+owner = nobody
+version = 9.0.4.1
+modtime = 1696339971.470471000
+
+[transforms/mulesoft_log4j_domain_fromthreadName]
+access = read : [ * ], write : [ admin, power ]
+export = system
+owner = nobody
+version = 9.0.4.1
+modtime = 1696339971.478991000
+
+[transforms/mulesoft_log4j_mulesoftErrorFields]
+access = read : [ * ], write : [ admin, power ]
+export = system
+owner = nobody
+version = 9.0.4.1
+modtime = 1696339971.456304000
+
+[transforms/mulesoft_log4j_priority_loggerName_threadName_message]
+access = read : [ * ], write : [ admin, power ]
+export = system
+owner = nobody
+version = 9.0.4.1
+modtime = 1696339971.474882000
+
+[props/mulesoft%3Aapplicationlogs/REPORT-mulesoft_json_mulesoftErrorFields]
+access = read : [ * ], write : [ admin, power ]
+export = system
+owner = nobody
+version = 9.0.4.1
+modtime = 1696519787.745158000
+
+[props/mulesoft%3Alog4j/REPORT-mulesoft_log4j_domain_fromElement]
+access = read : [ * ], write : [ admin, power ]
+export = system
+owner = nobody
+version = 9.0.4.1
+modtime = 1696519787.766619000
+
+[props/mulesoft%3Alog4j/REPORT-mulesoft_log4j_domain_fromthreadName]
+access = read : [ * ], write : [ admin, power ]
+export = system
+owner = nobody
+version = 9.0.4.1
+modtime = 1696519787.792849000
+
+[props/mulesoft%3Alog4j/REPORT-mulesoft_log4j_mulesoftErrorFields]
+access = read : [ * ], write : [ admin, power ]
+export = system
+owner = nobody
+version = 9.0.4.1
+modtime = 1696519787.806805000
+
+[props/mulesoft%3Alog4j/REPORT-mulesoft_log4j_priority_loggerName_threadName_message]
+access = read : [ * ], write : [ admin, power ]
+export = system
+owner = nobody
+version = 9.0.4.1
+modtime = 1696519787.821871000
+
+[views/application_summary_dashboard]
+export = none
+owner = nobody
+version = 9.0.4.1
+modtime = 1696519765.139159000
+
+[views/mulesoft_overview]
+export = none
+owner = nobody
+version = 9.0.4.1
+modtime = 1696519765.127938000
+
+[views/how_to_setup]
+export = none
+owner = nobody
+version = 9.0.4.1
+modtime = 1696519765.121548000
+
+[nav/default]
+version = 9.0.4.1
+modtime = 1696519530.631257000
+
+[views/app_dashboard]
+export = none
+owner = nobody
+version = 9.0.4.1
+modtime = 1696519765.119789000
+
+[app/install/install_source_checksum]
+version = 9.2.1
+modtime = 1717511314.186687000
+
+[app/install/state]
+version = 9.2.1
+modtime = 1717511316.557113000

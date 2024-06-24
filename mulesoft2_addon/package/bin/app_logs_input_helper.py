@@ -171,7 +171,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                                 smi.Event(
                                     data=app_log,
                                     index='mulesoft',
-                                    sourcetype=f'app-logs',
+                                    sourcetype=f'mulesoft:log4j',
                                     source=f'{input_name}/{deployment_name}/{deployment_id}',
                                     time=get_timestamp(app_log)
                                 )
@@ -182,7 +182,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                     log.events_ingested(
                         logger,
                         input_name,
-                        f'app-logs',
+                        f'mulesoft:log4j',
                         len(app_logs),
                         index="mulesoft"
                     )
