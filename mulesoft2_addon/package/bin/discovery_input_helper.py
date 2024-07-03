@@ -11,6 +11,7 @@ from splunklib import modularinput as smi
 ADDON_NAME = "mulesoft2_addon"
 
 def get_bearer_token(clientid: str, clientsecret: str) -> str:
+    # uses user credentials to get bearer token
     endpoint = 'https://anypoint.mulesoft.com/accounts/api/v2/oauth2/token'
 
     payload = {
@@ -18,13 +19,12 @@ def get_bearer_token(clientid: str, clientsecret: str) -> str:
         'client_secret': clientsecret,
         'grant_type': 'client_credentials'
     }
-
-    print(payload)
     
     response = requests.post(endpoint, data=payload)
 
     access_token = ""
     
+    # return empty string if issue w/ bearer token
     if response.status_code == 200:
         access_token = response.json().get('access_token')
         
@@ -42,6 +42,7 @@ def get_org_id(access_token: str):
     
     response = requests.get(org_endpoint, headers=headers)
     
+    # raise errors, unauthorized or not okay
     if response.status_code == 401:
         raise Exception(f"Unauthorized, check credentials: {access_token}")
     elif access_token == "":
@@ -81,6 +82,7 @@ def logger_for_input(input_name: str) -> logging.Logger:
 
 
 def get_account_api_key(session_key: str, account_name: str):
+    # get inputs fron configuration window
     cfm = conf_manager.ConfManager(
         session_key,
         ADDON_NAME,
@@ -90,12 +92,8 @@ def get_account_api_key(session_key: str, account_name: str):
     return account_conf_file.get(account_name)
 
 
-
-def validate_input(definition: smi.ValidationDefinition):
-    return
-
-
 def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
+    
     # inputs.inputs is a Python dictionary object like:
     # {
     #   "mulesoft_input://<input_name>": {
@@ -107,11 +105,16 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
     #     "python.version": "python3",
     #   },
     # }
+    
+    # for each log input
     for input_name, input_item in inputs.inputs.items():
+        # grab input name and setup logging
         normalized_input_name = input_name.split("://")[-1]
         logger = logger_for_input(normalized_input_name)
         try:
             session_key = inputs.metadata["session_key"]
+            
+            # logging info
             log_level = conf_manager.get_log_level(
                 logger=logger,
                 session_key=session_key,
@@ -120,9 +123,11 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
             )
             logger.setLevel(log_level)
             log.modular_input_start(logger, normalized_input_name)
+            # getting tokens/ids
             account_details = get_account_api_key(session_key, input_item.get("account"))
             access_token = get_bearer_token(account_details.get('clientid'), account_details.get('clientsecret'))
             org_id = get_org_id(access_token)
+            # write discovery
             event_writer.write_event(
                     smi.Event(
                         data=json.dumps(
@@ -135,6 +140,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                         time=time.time()
                     )
                 )
+            # log event ingestion
             log.events_ingested(
                 logger,
                 input_name,
@@ -142,6 +148,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                 1,
                 index="mulesoft"
             )
+            # discover environments
             env_ids = get_environment_ids(access_token)
             for environments in env_ids:
                 data = {
@@ -150,6 +157,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                     "organisationID": org_id,
                     "account": input_item.get("account")
                 }
+                # ingest discovery
                 event_writer.write_event(
                     smi.Event(
                         data=json.dumps(data, ensure_ascii=False, default=str),
@@ -158,6 +166,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                         time=time.time()
                     )
                 )
+            # log ingestion
             log.events_ingested(
                 logger,
                 input_name,

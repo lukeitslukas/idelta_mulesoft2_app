@@ -17,6 +17,7 @@ from splunklib import modularinput as smi
 ADDON_NAME = "mulesoft2_addon"
 
 def get_bearer_token(clientid: str, clientsecret: str) -> str:
+    # get bearer token
     endpoint = 'https://anypoint.mulesoft.com/accounts/api/v2/oauth2/token'
 
     payload = {
@@ -83,6 +84,7 @@ def get_app_logs(access_token: str, org_id: str, env_id: str, deployment_id: str
     logs = response.text.rstrip('\n').split("\n")
 
     for i, line in enumerate(logs):
+        # re finds timestamp and seperates logs into individual events
         if re.match(r'\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?Z', line.strip()) and i != 0:
             logs[i] = f'\n{logs[i]}'  
 
