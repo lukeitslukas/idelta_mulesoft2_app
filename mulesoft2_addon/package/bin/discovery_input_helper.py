@@ -92,6 +92,10 @@ def get_account_api_key(session_key: str, account_name: str):
     return account_conf_file.get(account_name)
 
 
+def validate_input(definition: smi.ValidationDefinition):
+    return
+
+
 def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
     
     # inputs.inputs is a Python dictionary object like:

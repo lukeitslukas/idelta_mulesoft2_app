@@ -174,7 +174,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                                     data=app_log,
                                     index='mulesoft',
                                     sourcetype=f'mulesoft:log4j',
-                                    source=f'{input_name}/{deployment_name}/{deployment_id}',
+                                    source=f'{deployment_id}',
                                     time=get_timestamp(app_log)
                                 )
                             )
