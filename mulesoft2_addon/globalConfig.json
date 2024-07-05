@@ -185,19 +185,12 @@
                             "required": true
                         },
                         {
-                            "type": "text",
-                            "label": "Interval",
-                            "validators": [
-                                {
-                                    "type": "regex",
-                                    "errorMsg": "Interval must be an integer.",
-                                    "pattern": "^\\-[1-9]\\d*$|^\\d*$"
-                                }
-                            ],
-                            "defaultValue": "86400",
+                            "type": "interval",
                             "field": "interval",
+                            "label": "Interval",
                             "help": "How often to check for new enviornments/organisations, in seconds.",
-                            "required": true
+                            "required": true,
+                            "defaultValue": "86400"
                         },
                         {
                             "type": "singleSelect",
@@ -236,19 +229,12 @@
                             "required": true
                         },
                         {
-                            "type": "text",
-                            "label": "Interval",
-                            "validators": [
-                                {
-                                    "type": "regex",
-                                    "errorMsg": "Interval must be an integer.",
-                                    "pattern": "^\\-[1-9]\\d*$|^\\d*$"
-                                }
-                            ],
-                            "defaultValue": "86400",
+                            "type": "interval",
                             "field": "interval",
+                            "label": "Interval",
                             "help": "How often to grab application logs, in seconds.",
-                            "required": true
+                            "required": true,
+                            "defaultValue": "86400"
                         },
                         {
                             "type": "singleSelect",
@@ -350,9 +336,9 @@
     "meta": {
         "name": "mulesoft2_addon",
         "restRoot": "mulesoft2_addon",
-        "version": "0.1.0R0b18d14",
+        "version": "0.1.1R1db761e",
         "displayName": "Add-On for Mulesoft 2.0",
-        "schemaVersion": "0.0.6",
-        "_uccVersion": "5.44.0"
+        "schemaVersion": "0.2.7",
+        "_uccVersion": "5.47.0"
     }
 }

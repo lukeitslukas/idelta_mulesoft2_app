@@ -81,20 +81,43 @@ def get_app_logs(access_token: str, org_id: str, env_id: str, deployment_id: str
     if not response.text:
         return []
     
-    logs = response.text.rstrip('\n').split("\n")
-
-    for i, line in enumerate(logs):
-        # re finds timestamp and seperates logs into individual events
-        if re.match(r'\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?Z', line.strip()) and i != 0:
-            logs[i] = f'\n{logs[i]}'  
-
-    logs = '\n'.join(logs).split('\n\n')
+    logs = ""
+        
+    for line in response.text.strip().split("\n"):
+        # normal timestamp format
+        timestamp = re.match(r'\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?Z', line.strip())
+        # broken logs timestamp format
+        timestamp1 = re.match(r'^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.?\d{0,3}\]', line.strip())
+        if not line.strip():
+            continue
+        elif line.startswith("  "):
+            # broken multiline logs start like this
+            logs = logs + "\n" + line.strip()
+        elif timestamp:
+            logs = logs + "\n\n" + line.strip()
+        elif timestamp1:
+            logs = logs + "\n\n" + line.strip().replace('[', '', 2).replace(' ', 'T', 1).replace(']', '', 2).replace(' ', 'Z ', 1).replace("[event: ]:", '-', 1)
+        else:
+            logs = logs + "\n\n" + line.strip()
+            
+    logs = logs.lstrip().split('\n\n')
+    
+    for i, log in enumerate(logs):
+        log = log.split(" ")
+        if log[2] == '':
+            log[2] = '[]'
+        log = " ".join(log)
+        logs[i] = log
 
     return(logs)
 
 
-def get_timestamp(log_str: str) -> float:
-    date_timestamp = re.match(r'\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?Z', log_str).group()
+def get_timestamp(log_str: str):
+    date_timestamp = re.match(r'\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?Z', log_str)
+    try:
+        date_timestamp = date_timestamp.group()
+    except Exception as e:
+        return log_str
     try:
         return(datetime.strptime(date_timestamp, "%Y-%m-%dT%H:%M:%S.%fZ").replace(tzinfo=timezone.utc).timestamp())
     except:
@@ -113,7 +136,6 @@ def get_config_details(conf: str, session_key: str, config_name: str):
     )
     account_conf_file = cfm.get_conf(f"mulesoft2_addon_{conf}")
     return account_conf_file.get(config_name)
-
 
 
 def validate_input(definition: smi.ValidationDefinition):
@@ -174,7 +196,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                                     data=app_log,
                                     index='mulesoft',
                                     sourcetype=f'mulesoft:log4j',
-                                    source=f'{deployment_id}',
+                                    source=f'{ADDON_NAME}://{deployment_id}',
                                     time=get_timestamp(app_log)
                                 )
                             )
@@ -190,4 +212,4 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                     )
             log.modular_input_end(logger, normalized_input_name)
         except Exception as e:
-            log.log_exception(logger, e, msg_before="Exception raised while ingesting data for demo_input: ")
+            log.log_exception(logger, e, exc_label="app_logs_input_exception", msg_before="Exception raised while ingesting data for demo_input: ")
