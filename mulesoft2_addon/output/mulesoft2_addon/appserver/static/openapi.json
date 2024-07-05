@@ -2,7 +2,7 @@
     "openapi": "3.0.0",
     "info": {
         "title": "mulesoft2_addon",
-        "version": "0.1.1R1db761e",
+        "version": "0.2.0R897f19b",
         "description": "Add-On for Mulesoft 2.0",
         "contact": {
             "name": ""
