@@ -329,14 +329,20 @@
             "panels": [
                 {
                     "name": "default"
+                },
+                {
+                    "name": "custom"
                 }
-            ]
+            ],
+            "settings": {
+                "custom_tab_name": "Discovery"
+            }
         }
     },
     "meta": {
         "name": "mulesoft2_addon",
         "restRoot": "mulesoft2_addon",
-        "version": "0.2.0R897f19b",
+        "version": "0.2.0R5253a52",
         "displayName": "Add-On for Mulesoft 2.0",
         "schemaVersion": "0.2.7",
         "_uccVersion": "5.47.0"

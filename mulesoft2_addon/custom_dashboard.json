@@ -1,0 +1,36 @@
+{
+    "visualizations": {
+        "custom_dashboard_main_label": {
+            "type": "splunk.markdown",
+            "options": {
+                "markdown": "# Discovery Data",
+                "fontSize": "extraLarge"
+            }
+        },
+        "custom_dashboard_info": {
+            "type": "splunk.markdown",
+            "options": {
+                "markdown": "Organisation and Environment IDs from Discovery Data, if IDs are missing, check the installation instructions",
+                "fontSize": "default"
+            }
+        },
+        "table": {
+            "type": "splunk.table",
+            "title": "title",
+            "description": "description",
+            "dataSources": {
+                "primary": "discovery"
+            }
+        }
+    },
+    "dataSources": {
+        "discovery": {
+            "type": "ds.search",
+            "options": {
+                "query": "index='mulesoft' sourcetype='discovery-data-*'
+                | dedup _raw sortby -_indextime
+                | stats  values(organisationID) as orgIDs values(environmentID) as envIDs values(environmentName) as envNames by account"
+            }
+        }
+    }
+}
