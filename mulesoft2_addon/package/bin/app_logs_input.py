@@ -1,7 +1,6 @@
-import import_declare_test
-
 import sys
 
+import import_declare_test
 from splunklib import modularinput as smi
 from app_logs_input_helper import stream_events, validate_input
 
@@ -16,7 +15,7 @@ class APP_LOGS_INPUT(smi.Script):
         scheme.use_external_validation = True
         scheme.streaming_mode_xml = True
         scheme.use_single_instance = False
-
+        
         scheme.add_argument(
             smi.Argument(
                 'account',

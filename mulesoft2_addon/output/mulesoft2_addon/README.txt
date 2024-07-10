@@ -1,1 +1,0 @@
-# iDelta LTD Mulesoft App

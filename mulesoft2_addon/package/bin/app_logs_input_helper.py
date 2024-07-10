@@ -9,6 +9,7 @@ import requests
 import time
 
 import import_declare_test
+
 from solnlib import conf_manager, log
 from solnlib.modular_input import checkpointer
 from splunklib import modularinput as smi
@@ -171,7 +172,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
             
             # intialise checkpointer
             checkpoint = checkpointer.KVStoreCheckpointer(
-                "app_log_checkpoints",
+                "mulesoft_checkpoints",
                 session_key,
                 ADDON_NAME
             )
@@ -180,6 +181,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
             account_details = get_config_details('account', session_key, input_item.get("account"))
             org_id = get_config_details('organisation', session_key, input_item.get("organisation")).get('organisationid')
             env_id = get_config_details('environment', session_key, input_item.get("environment")).get('environmentid')
+            index = get_config_details('index', session_key, input_item.get("index")).get('index')
             access_token = get_bearer_token(account_details.get('clientid'), account_details.get('clientsecret'))
             
             # go through deployments and ingest logs
@@ -194,7 +196,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                         event_writer.write_event(
                                 smi.Event(
                                     data=app_log,
-                                    index='mulesoft',
+                                    index=f'{index}',
                                     sourcetype=f'mulesoft:log4j',
                                     source=f'{ADDON_NAME}://{deployment_id}',
                                     time=get_timestamp(app_log)
@@ -208,7 +210,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                         input_name,
                         f'mulesoft:log4j',
                         len(app_logs),
-                        index="mulesoft"
+                        index=f'{index}'
                     )
             log.modular_input_end(logger, normalized_input_name)
         except Exception as e:
