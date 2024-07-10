@@ -91,15 +91,6 @@ def get_account_api_key(session_key: str, account_name: str):
     account_conf_file = cfm.get_conf("mulesoft2_addon_account")
     return account_conf_file.get(account_name)
 
-def get_config_details(conf: str, session_key: str, config_name: str):
-    cfm = conf_manager.ConfManager(
-        session_key,
-        ADDON_NAME,
-        realm=f"__REST_CREDENTIAL__#{ADDON_NAME}#configs/conf-mulesoft2_addon_{conf}",
-    )
-    account_conf_file = cfm.get_conf(f"mulesoft2_addon_{conf}")
-    return account_conf_file.get(config_name)
-
 
 def validate_input(definition: smi.ValidationDefinition):
     return
@@ -139,7 +130,6 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
             # getting tokens/ids
             account_details = get_account_api_key(session_key, input_item.get("account"))
             access_token = get_bearer_token(account_details.get('clientid'), account_details.get('clientsecret'))
-            index = get_config_details('index', session_key, input_item.get("index")).get('index')
             org_id = get_org_id(access_token)
             # write discovery
             event_writer.write_event(
@@ -149,7 +139,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                                 "organisationID": org_id,
                                 "account": input_item.get("account")
                             }, ensure_ascii=False, default=str),
-                        index=f'{index}',
+                        index=f'{input_item.get("index")}',
                         sourcetype='discovery-data-org',
                         time=time.time()
                     )
@@ -160,7 +150,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                 input_name,
                 'discovery-data-org',
                 1,
-                index=f'{index}'
+                index=f'{input_item.get("index")}'
             )
             # discover environments
             env_ids = get_environment_ids(access_token)
@@ -175,7 +165,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                 event_writer.write_event(
                     smi.Event(
                         data=json.dumps(data, ensure_ascii=False, default=str),
-                        index=f'{index}',
+                        index=f'{input_item.get("index")}',
                         sourcetype='discovery-data-env',
                         time=time.time()
                     )
@@ -186,7 +176,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                 input_name,
                 'discovery-data-env',
                 len(env_ids),
-                index=f'{index}'
+                index=f'{input_item.get("index")}'
             )
             log.modular_input_end(logger, normalized_input_name)
         except Exception as e:

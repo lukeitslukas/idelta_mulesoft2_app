@@ -210,7 +210,7 @@
                         },
                         {
                             "type": "singleSelect",
-                            "label": "Account to use",
+                            "label": "Account",
                             "options": {
                                 "referenceName": "account"
                             },
@@ -270,7 +270,7 @@
                         },
                         {
                             "type": "singleSelect",
-                            "label": "Account to use",
+                            "label": "Account",
                             "options": {
                                 "referenceName": "account"
                             },
@@ -280,7 +280,7 @@
                         },
                         {
                             "type": "singleSelect",
-                            "label": "Organisation ID to use",
+                            "label": "Organisation ID",
                             "options": {
                                 "referenceName": "organisation"
                             },
@@ -290,7 +290,7 @@
                         },
                         {
                             "type": "singleSelect",
-                            "label": "Environment ID to use",
+                            "label": "Environment ID",
                             "options": {
                                 "referenceName": "environment"
                             },
@@ -376,7 +376,7 @@
     "meta": {
         "name": "mulesoft2_addon",
         "restRoot": "mulesoft2_addon",
-        "version": "0.2.0Rdd5ea1c",
+        "version": "0.3.0Rce877b2",
         "displayName": "Add-On for Mulesoft 2.0",
         "schemaVersion": "0.2.7",
         "_uccVersion": "5.47.0"

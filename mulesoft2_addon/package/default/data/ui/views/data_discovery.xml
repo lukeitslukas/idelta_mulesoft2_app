@@ -1,0 +1,82 @@
+<dashboard version="2" theme="light">
+    <label>Discovery Data</label>
+    <description>Discovery Data information, if this table is empty, check the installation instructions</description>
+    <definition><![CDATA[
+{
+	"dataSources": {
+		"ds_discoveryData": {
+			"type": "ds.search",
+			"options": {
+				"query": "`mulesoft2addon_discovery_index` (sourcetype=\"discovery-data-env\" OR sourcetype=\"discovery-data-org\")\n| dedup _raw SORTBY -_indextime\n| stats values(organisationID) as orgID by account, environmentName, environmentID\n| rename account as Account, environmentName as \"Environment Name\", environmentID as \"Environment ID\", orgID as \"Organisation ID\"",
+				"queryParameters": {
+					"earliest": "0",
+					"latest": ""
+				}
+			},
+			"name": "Discovery Data Table - Table search"
+		}
+	},
+	"visualizations": {
+		"viz_discoveryTable": {
+			"type": "splunk.table",
+			"options": {
+				"count": 20,
+				"dataOverlayMode": "none",
+				"drilldown": "none",
+				"showRowNumbers": false,
+				"showInternalFields": false,
+				"tableFormat": {
+					"rowBackgroundColors": "> table | seriesByIndex(0) | pick(tableAltRowBackgroundColorsByTheme)"
+				}
+			},
+			"dataSources": {
+				"primary": "ds_discoveryData"
+			},
+			"title": "Discovery Data Table"
+		}
+	},
+	"inputs": {},
+	"layout": {
+		"type": "grid",
+		"options": {
+			"width": 1440,
+			"height": 960
+		},
+		"structure": [
+			{
+				"item": "viz_discoveryTable",
+				"type": "block",
+				"position": {
+					"x": 0,
+					"y": 0,
+					"w": 1440,
+					"h": 700
+				}
+			}
+		],
+		"globalInputs": []
+	},
+	"title": "Discovery Data",
+	"defaults": {
+		"dataSources": {
+			"ds.search": {
+				"options": {
+					"queryParameters": {
+						"latest": "$global_time.latest$",
+						"earliest": "$global_time.earliest$"
+					}
+				}
+			}
+		}
+	},
+	"description": "Discovery Data information, if this table is empty, check the installation instructions"
+}
+    ]]></definition>
+    <meta type="hiddenElements"><![CDATA[
+{
+	"hideEdit": false,
+	"hideOpenInSearch": false,
+	"hideExport": false
+}
+    ]]></meta>
+</dashboard>
