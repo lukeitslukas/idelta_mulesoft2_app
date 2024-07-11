@@ -7,6 +7,7 @@ import os
 import re
 import requests
 import time
+import json
 
 import import_declare_test
 
@@ -120,9 +121,9 @@ def get_timestamp(log_str: str):
     except Exception as e:
         return log_str
     try:
-        return(datetime.strptime(date_timestamp, "%Y-%m-%dT%H:%M:%S.%fZ").replace(tzinfo=timezone.utc).timestamp())
+        return (datetime.strptime(date_timestamp, "%Y-%m-%dT%H:%M:%S.%fZ").replace(tzinfo=timezone.utc).timestamp())
     except:
-        return(datetime.strptime(date_timestamp, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc).timestamp())
+        return (datetime.strptime(date_timestamp, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc).timestamp())
         
 
 def logger_for_input(input_name: str) -> logging.Logger:
@@ -181,28 +182,39 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
             account_details = get_config_details('account', session_key, input_item.get("account"))
             org_id = get_config_details('organisation', session_key, input_item.get("organisation")).get('organisationid')
             env_id = get_config_details('environment', session_key, input_item.get("environment")).get('environmentid')
+            env_name = get_config_details('environment', session_key, input_item.get("environment")).get('name')
+            org_name = get_config_details('organisation', session_key, input_item.get("organisation")).get('name')
             access_token = get_bearer_token(account_details.get('clientid'), account_details.get('clientsecret'))
             
             # go through deployments and ingest logs
             for deployment_name, deployment_id in get_deployments(access_token, org_id, env_id).items():
                 # get checkpoint timestamp or set to 0.0 if not ingested before
                 last_log = checkpoint.get(deployment_id) if checkpoint.get(deployment_id) is not None else 0.0
+                last_log = float(last_log)
                 
                 app_logs = get_app_logs(access_token, org_id, env_id, deployment_id, last_log)
                 
                 if len(app_logs) > 0:
                     for app_log in app_logs:
+                        '''data = {
+                            "_raw": app_log,
+                            "environmentID": env_id,
+                            "envName": env_name,
+                            "orgID": org_id,
+                            "orgName": org_name
+                        }'''
+                        
                         event_writer.write_event(
-                                smi.Event(
+                            smi.Event(
                                     data=app_log,
                                     index=f'{input_item.get("index")}',
                                     sourcetype=f'mulesoft:log4j',
-                                    source=f'{ADDON_NAME}://{deployment_id}',
+                                    source=f'{ADDON_NAME}://{normalized_input_name}',
                                     time=get_timestamp(app_log)
                                 )
                             )
                     
-                    checkpoint.update(deployment_id, get_timestamp(app_logs[-1]))
+                    checkpoint.update(deployment_id, str(get_timestamp(app_logs[-1])))
                         
                     log.events_ingested(
                         logger,
@@ -213,4 +225,4 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                     )
             log.modular_input_end(logger, normalized_input_name)
         except Exception as e:
-            log.log_exception(logger, e, exc_label="app_logs_input_exception", msg_before="Exception raised while ingesting data for demo_input: ")
+            log.log_exception(logger, e, exc_label="app_logs_input_exception", msg_before="Exception raised while ingesting data for app_logs_input: ")
