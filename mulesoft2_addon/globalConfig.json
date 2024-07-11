@@ -317,6 +317,10 @@
                         "field": "name"
                     },
                     {
+                        "label": "Input Type",
+                        "field": "serviceTitle"
+                    },
+                    {
                         "label": "Index",
                         "field": "index"
                     },
@@ -341,6 +345,10 @@
                     {
                         "label": "Name",
                         "field": "name"
+                    },
+                    {
+                        "label": "Input Type",
+                        "field": "serviceTitle"
                     },
                     {
                         "label": "Index",
@@ -376,9 +384,9 @@
     "meta": {
         "name": "mulesoft2_addon",
         "restRoot": "mulesoft2_addon",
-        "version": "0.3.0Rce877b2",
+        "version": "0.3.1Rc47add7",
         "displayName": "Add-On for Mulesoft 2.0",
         "schemaVersion": "0.2.7",
-        "_uccVersion": "5.47.0"
+        "_uccVersion": "5.48.1"
     }
 }
