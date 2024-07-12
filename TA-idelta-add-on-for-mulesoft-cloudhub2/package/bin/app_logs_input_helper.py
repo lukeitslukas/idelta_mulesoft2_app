@@ -16,7 +16,8 @@ from solnlib.modular_input import checkpointer
 from splunklib import modularinput as smi
 
 
-ADDON_NAME = "mulesoft2_addon"
+ADDON_NAME = "TA-idelta-add-on-for-mulesoft-cloudhub2"
+REST_ROOT = "mulesoft_cloudhub"
 
 def get_bearer_token(clientid: str, clientsecret: str) -> str:
     # get bearer token
@@ -134,9 +135,9 @@ def get_config_details(conf: str, session_key: str, config_name: str):
     cfm = conf_manager.ConfManager(
         session_key,
         ADDON_NAME,
-        realm=f"__REST_CREDENTIAL__#{ADDON_NAME}#configs/conf-mulesoft2_addon_{conf}",
+        realm=f"__REST_CREDENTIAL__#{ADDON_NAME}#configs/conf-{REST_ROOT}_{conf}",
     )
-    account_conf_file = cfm.get_conf(f"mulesoft2_addon_{conf}")
+    account_conf_file = cfm.get_conf(f"{REST_ROOT}_{conf}")
     return account_conf_file.get(config_name)
 
 
@@ -166,7 +167,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                 logger=logger,
                 session_key=session_key,
                 app_name=ADDON_NAME,
-                conf_name=f"{ADDON_NAME}_settings",
+                conf_name=f"{REST_ROOT}_settings",
             )
             logger.setLevel(log_level)
             log.modular_input_start(logger, normalized_input_name)
@@ -209,7 +210,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                                     data=app_log,
                                     index=f'{input_item.get("index")}',
                                     sourcetype=f'mulesoft:log4j',
-                                    source=f'{ADDON_NAME}://{normalized_input_name}',
+                                    source=input_name,
                                     time=get_timestamp(app_log)
                                 )
                             )
