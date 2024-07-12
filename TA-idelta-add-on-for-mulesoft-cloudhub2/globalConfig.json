@@ -382,10 +382,10 @@
         }
     },
     "meta": {
-        "name": "mulesoft2_addon",
-        "restRoot": "mulesoft2_addon",
-        "version": "0.3.2R1edb858",
-        "displayName": "Add-On for Mulesoft 2.0",
+        "name": "TA-idelta-add-on-for-mulesoft-cloudhub2",
+        "restRoot": "mulesoft_cloudhub",
+        "version": "0.3.2Rbd5a840",
+        "displayName": "iDelta Add-On for Mulesoft Cloudhub 2.0",
         "schemaVersion": "0.2.7",
         "_uccVersion": "5.48.1"
     }

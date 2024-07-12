@@ -1,21 +1,21 @@
 {
     "schemaVersion": "2.0.0",
     "info": {
-        "title": "Add-On for Mulesoft 2.0",
+        "title": "iDelta Add-On for Mulesoft Cloudhub 2.0",
         "id": {
             "group": null,
-            "name": "mulesoft2_addon",
-            "version": "0.2"
+            "name": "TA-idelta-add-on-for-mulesoft-cloudhub2",
+            "version": "0.3.2"
         },
         "author": [
             {
-                "name": "",
-                "email": null,
-                "company": null
+                "name": "Lukas Smith",
+                "email": "lukas@idelta.co.uk",
+                "company": "iDelta LTD"
             }
         ],
         "releaseDate": null,
-        "description": "Add-On for Mulesoft 2.0",
+        "description": "Add-On for Mulesoft Cloudhub 2.0",
         "classification": {
             "intendedAudience": "IT Professionals",
             "categories": [

@@ -8,7 +8,8 @@ from solnlib import conf_manager, log
 from splunklib import modularinput as smi
 
 
-ADDON_NAME = "mulesoft2_addon"
+ADDON_NAME = "TA-idelta-add-on-for-mulesoft-cloudhub2"
+REST_ROOT = "mulesoft_cloudhub"
 
 def get_bearer_token(clientid: str, clientsecret: str) -> str:
     # uses user credentials to get bearer token
@@ -86,9 +87,9 @@ def get_account_api_key(session_key: str, account_name: str):
     cfm = conf_manager.ConfManager(
         session_key,
         ADDON_NAME,
-        realm=f"__REST_CREDENTIAL__#{ADDON_NAME}#configs/conf-mulesoft2_addon_account",
+        realm=f"__REST_CREDENTIAL__#{ADDON_NAME}#configs/conf-{REST_ROOT}_account",
     )
-    account_conf_file = cfm.get_conf("mulesoft2_addon_account")
+    account_conf_file = cfm.get_conf(f"{REST_ROOT}_account")
     return account_conf_file.get(account_name)
 
 
@@ -123,7 +124,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                 logger=logger,
                 session_key=session_key,
                 app_name=ADDON_NAME,
-                conf_name=f"{ADDON_NAME}_settings",
+                conf_name=f"{REST_ROOT}_settings",
             )
             logger.setLevel(log_level)
             log.modular_input_start(logger, normalized_input_name)
@@ -180,4 +181,4 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
             )
             log.modular_input_end(logger, normalized_input_name)
         except Exception as e:
-            log.log_exception(logger, e, exc_label="discover_input_exception", msg_before="Exception raised while ingesting data for demo_input: ")
+            log.log_exception(logger, e, exc_label="discover_input_exception", msg_before="Exception raised while ingesting data for discovery_input: ")

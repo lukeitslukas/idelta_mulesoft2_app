@@ -1,4 +1,4 @@
-# Mulesoft 2 Add-On
+# TA iDelta Add-On For Mulesoft Cloudhub2
 
 ## Installation Intructions
 ### Installing the app from Splunkbase
