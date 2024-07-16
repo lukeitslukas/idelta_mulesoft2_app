@@ -130,9 +130,12 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
             log.modular_input_start(logger, normalized_input_name)
             # getting tokens/ids
             account_details = get_account_api_key(session_key, input_item.get("account"))
+            logger.info("Getting access token from mulesoft API")
             access_token = get_bearer_token(account_details.get('clientid'), account_details.get('clientsecret'))
+            logger.info("Getting organisation ID from mulesoft API")
             org_id = get_org_id(access_token)
             # write discovery
+            logger.info("Writing organisation ID as event to Splunk")
             event_writer.write_event(
                     smi.Event(
                         data=json.dumps(
@@ -154,6 +157,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                 index=f'{input_item.get("index")}'
             )
             # discover environments
+            logger.info("Getting environment IDs from mulesoft API")
             env_ids = get_environment_ids(access_token)
             for environments in env_ids:
                 data = {
@@ -163,6 +167,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                     "account": input_item.get("account")
                 }
                 # ingest discovery
+                logger.info("Writing environment info as event to Splunk")
                 event_writer.write_event(
                     smi.Event(
                         data=json.dumps(data, ensure_ascii=False, default=str),
