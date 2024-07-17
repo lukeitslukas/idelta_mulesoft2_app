@@ -29,7 +29,7 @@ def get_bearer_token(clientid: str, clientsecret: str) -> str:
         'grant_type': 'client_credentials'
     }
 
-    print(payload)
+    #print(payload)
     
     response = requests.post(endpoint, data=payload)
 
@@ -41,18 +41,19 @@ def get_bearer_token(clientid: str, clientsecret: str) -> str:
     return access_token
 
 
-def get_deployments(access_token: str, org_id: str, env_id: str):
+def get_deployments(logger:logging.Logger, access_token: str, org_id: str, env_id: str):
     endpoint = f'https://anypoint.mulesoft.com/amc/application-manager/api/v2/organizations/{org_id}/environments/{env_id}/deployments'
 
     headers = {
         'Authorization': 'Bearer ' + access_token
     }
 
-    response = requests.get(endpoint, headers=headers).json()
-
+    response = requests.get(endpoint, headers=headers)
+    logger.info("Response Code from deployments API call: "+str(response.status_code))
+    logger.debug("Response from deployments API: "+response.text)
     out_dict = {}
     
-    for app in response['items']:
+    for app in response.json()['items']:
         out_dict[app['name']] = app['id']
         
     return out_dict
@@ -188,7 +189,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
             access_token = get_bearer_token(account_details.get('clientid'), account_details.get('clientsecret'))
             
             # go through deployments and ingest logs
-            for deployment_name, deployment_id in get_deployments(access_token, org_id, env_id).items():
+            for deployment_name, deployment_id in get_deployments(logger,access_token, org_id, env_id).items():
                 # get checkpoint timestamp or set to 0.0 if not ingested before
                 last_log = checkpoint.get(deployment_id) if checkpoint.get(deployment_id) is not None else 0.0
                 last_log = float(last_log)
