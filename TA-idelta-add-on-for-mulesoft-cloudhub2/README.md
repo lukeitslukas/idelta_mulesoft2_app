@@ -1,10 +1,10 @@
 # TA iDelta Add-On For Mulesoft Cloudhub2
 
 ## Installation Intructions
-### Installing the app from Splunkbase
-[TODO]
+### Installing the add-on from Splunkbase
+Download the add-on from Splunkbase, it can be found here: https://splunkbase.splunk.com/app/7487
 
-### Setting up the app
+### Setting up the add-on
 Create the index/indexes you wish to store the mulesoft data in, then go to:
 
 Settings -> Advanced Search -> Search Macros
@@ -36,7 +36,7 @@ Add the following permissions for the organisations and environments you wish to
     - Read Applications
     - Read Servers
 
-Click save then note down the values from Copy ID (Client ID) and Copy Secret (Secret ID), this will be the values we put into the Mulesoft Application.
+Click save then note down the values from Copy ID (Client ID) and Copy Secret (Secret ID), this will be the values we put into the Mulesoft Add-On.
 
 ### Setting Up the Add-On
 #### Adding the Account
@@ -62,7 +62,7 @@ Within the Add-On go to Inputs -> Create New Input -> Discovery Input
 After discovery data has been ingested, the "Discovery Data" dashboard should populate with enviornment and organisation IDs, which can be used to setup log ingestion.
 
 #### Organisations and Environments
-To ingest Application logs, we first have to define our Organisations and Environments, we can do this by taking the values now populdated in the "Discovery Data" dashboard and putting them in our app configuration.
+To ingest Application logs, we first have to define our Organisations and Environments, we can do this by taking the values now populdated in the "Discovery Data" dashboard and putting them in our add-on configuration.
 
 Within the Add-On go to Configuration -> Organisations -> Add
 
