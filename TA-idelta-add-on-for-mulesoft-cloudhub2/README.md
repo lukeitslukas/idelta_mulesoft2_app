@@ -33,6 +33,7 @@ Add the following permissions for the organisations and environments you wish to
     - View Environment
     - View Organization
  - Runtime Manager
+    - Cloudhub Organization Admin
     - Read Applications
     - Read Servers
 

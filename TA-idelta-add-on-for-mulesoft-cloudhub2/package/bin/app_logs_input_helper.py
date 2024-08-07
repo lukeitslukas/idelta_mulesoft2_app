@@ -59,20 +59,23 @@ def get_deployments(logger:logging.Logger, access_token: str, org_id: str, env_i
     return out_dict
 
 
-def get_specification_id(access_token: str, org_id: str, env_id: str, deployment_id: str):
+def get_specification_id(logger: logging.Logger, access_token: str, org_id: str, env_id: str, deployment_id: str):
     endpoint = f'https://anypoint.mulesoft.com/amc/application-manager/api/v2/organizations/{org_id}/environments/{env_id}/deployments/{deployment_id}'
 
     headers = {
         'Authorization': 'Bearer ' + access_token
     }
 
-    response = requests.get(endpoint, headers=headers).json()
+    response = requests.get(endpoint, headers=headers)
     
-    return response['desiredVersion']
+    logger.info("Response Code from deployments API call: " + str(response.status_code))
+    logger.debug("Response from deployments API: " + response.text)
+    
+    return response.json()['desiredVersion']
 
 
-def get_app_logs(access_token: str, org_id: str, env_id: str, deployment_id: str, last_log: float):
-    spec_id = get_specification_id(access_token, org_id, env_id, deployment_id)
+def get_app_logs(logger: logging.Logger, access_token: str, org_id: str, env_id: str, deployment_id: str, last_log: float):
+    spec_id = get_specification_id(logger, access_token, org_id, env_id, deployment_id)
     # logs endpoint
     endpoint = f'https://anypoint.mulesoft.com/amc/application-manager/api/v2/organizations/{org_id}/environments/{env_id}/deployments/{deployment_id}/specs/{spec_id}/logs/file'
 
@@ -132,13 +135,35 @@ def logger_for_input(input_name: str) -> logging.Logger:
     return log.Logs().get_logger(f"{ADDON_NAME.lower()}_{input_name}")
 
 
-def get_config_details(conf: str, session_key: str, config_name: str):
+def get_conf(session_key: str, config_str: str):
     cfm = conf_manager.ConfManager(
         session_key,
         ADDON_NAME,
-        realm=f"__REST_CREDENTIAL__#{ADDON_NAME}#configs/conf-{REST_ROOT}_{conf}",
+        realm=f"__REST_CREDENTIAL__#{ADDON_NAME}#configs/conf-{REST_ROOT}_{config_str}",
     )
-    account_conf_file = cfm.get_conf(f"{REST_ROOT}_{conf}")
+    return cfm
+
+def get_account_details(session_key: str, config_name: str):
+    cfm = get_conf(session_key, 'account')
+    account_conf_file = cfm.get_conf(f"{REST_ROOT}_account")
+    return account_conf_file.get(config_name)
+
+
+def get_environment_details(session_key: str, config_name: str):
+    cfm = get_conf(session_key, 'environment')
+    account_conf_file = cfm.get_conf(f"{REST_ROOT}_environment")
+    return account_conf_file.get(config_name)
+
+
+def get_organisation_details(session_key: str, config_name: str):
+    cfm = get_conf(session_key, 'organisation')
+    account_conf_file = cfm.get_conf(f"{REST_ROOT}_organisation")
+    return account_conf_file.get(config_name)
+
+
+def get_proxy_details(session_key: str, config_name: str):
+    cfm = get_conf(session_key, 'proxy')
+    account_conf_file = cfm.get_conf(f"{REST_ROOT}_organisation")
     return account_conf_file.get(config_name)
 
 
@@ -181,11 +206,9 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
             )
             
             # initialise mulesoft details
-            account_details = get_config_details('account', session_key, input_item.get("account"))
-            org_id = get_config_details('organisation', session_key, input_item.get("organisation")).get('organisationid')
-            env_id = get_config_details('environment', session_key, input_item.get("environment")).get('environmentid')
-            env_name = get_config_details('environment', session_key, input_item.get("environment")).get('name')
-            org_name = get_config_details('organisation', session_key, input_item.get("organisation")).get('name')
+            account_details = get_account_details(session_key, input_item.get("account"))
+            org_id = get_organisation_details(session_key, input_item.get("organisation")).get('organisationid')
+            env_id = get_environment_details(session_key, input_item.get("environment")).get('environmentid')
             access_token = get_bearer_token(account_details.get('clientid'), account_details.get('clientsecret'))
             
             # go through deployments and ingest logs
@@ -194,7 +217,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                 last_log = checkpoint.get(deployment_id) if checkpoint.get(deployment_id) is not None else 0.0
                 last_log = float(last_log)
                 
-                app_logs = get_app_logs(access_token, org_id, env_id, deployment_id, last_log)
+                app_logs = get_app_logs(logger, access_token, org_id, env_id, deployment_id, last_log)
                 
                 if len(app_logs) > 0:
                     for app_log in app_logs:
