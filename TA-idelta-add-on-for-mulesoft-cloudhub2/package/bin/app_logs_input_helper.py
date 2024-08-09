@@ -82,14 +82,16 @@ def get_app_logs(logger: logging.Logger,access_token: str, org_id: str, env_id: 
     headers = {
         'Authorization': 'Bearer ' + access_token
     }
-
-    response = requests.get(endpoint, headers=headers, params={'startTime': int(last_log * 1000) + 1})
+    current_time = datetime.now().timestamp()
+    response = requests.get(endpoint, headers=headers, params={'startTime': int(last_log * 1000) + 1,
+                                                               'endTime': int(current_time * 1000.0)})
     
     logger.info("Response Code from App Logs API call: " + str(response.status_code))
     logger.debug("Response from App Logs ID API: " + response.text)
     
     if not response.text:
-        return []
+        logger.info("Response from App Logs is empty, no new logs")
+        return [], current_time
     
     logs = ""
         
@@ -112,7 +114,7 @@ def get_app_logs(logger: logging.Logger,access_token: str, org_id: str, env_id: 
             
     logs = logs.lstrip().split('\n\n')
 
-    return(logs)
+    return logs, current_time
 
 
 def get_timestamp(log_str: str):
@@ -120,7 +122,7 @@ def get_timestamp(log_str: str):
     try:
         date_timestamp = date_timestamp.group()
     except Exception as e:
-        return log_str
+        return None
     try:
         return (datetime.strptime(date_timestamp, "%Y-%m-%dT%H:%M:%S.%fZ").replace(tzinfo=timezone.utc).timestamp())
     except:
@@ -193,7 +195,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                 last_log = checkpoint.get(deployment_id) if checkpoint.get(deployment_id) is not None else 0.0
                 last_log = float(last_log)
                 
-                app_logs = get_app_logs(logger, access_token, org_id, env_id, deployment_id, last_log)
+                app_logs, new_timestamp = get_app_logs(logger, access_token, org_id, env_id, deployment_id, last_log)
                 
                 if len(app_logs) > 0:
                     for app_log in app_logs:
@@ -215,7 +217,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                                 )
                             )
                     
-                    checkpoint.update(deployment_id, str(get_timestamp(app_logs[-1])))
+                    checkpoint.update(deployment_id, str(new_timestamp))
                         
                     log.events_ingested(
                         logger,
