@@ -90,7 +90,8 @@ def get_app_logs(logger: logging.Logger,access_token: str, org_id: str, env_id: 
     logger.debug("Response from App Logs ID API: " + response.text)
     
     if not response.text:
-        return []
+        logger.info("Response from App Logs is empty, no new logs")
+        return [], current_time
     
     logs = ""
         
@@ -121,7 +122,7 @@ def get_timestamp(log_str: str):
     try:
         date_timestamp = date_timestamp.group()
     except Exception as e:
-        return log_str
+        return None
     try:
         return (datetime.strptime(date_timestamp, "%Y-%m-%dT%H:%M:%S.%fZ").replace(tzinfo=timezone.utc).timestamp())
     except:
