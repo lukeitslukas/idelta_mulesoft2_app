@@ -94,26 +94,8 @@ def get_app_logs(logger: logging.Logger,access_token: str, org_id: str, env_id: 
         logger.info("Response from App Logs is empty, no new logs")
         return [], end_time
     
-    logs = ""
-        
-    for line in response.text.strip().split("\n"):
-        # normal timestamp format
-        timestamp = re.match(r'\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?Z', line.strip())
-        # broken logs timestamp format
-        timestamp1 = re.match(r'^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.?\d{0,3}\]', line.strip())
-        if not line.strip():
-            continue
-        elif line.startswith("  "):
-            # broken multiline logs start like this
-            logs = logs + "\n" + line.strip()
-        elif timestamp:
-            logs = logs + "\n\n" + line.strip()
-        elif timestamp1:
-            logs = logs + "\n\n" + line.strip().replace('[', '', 2).replace(' ', 'T', 1).replace(']', '', 2).replace(' ', 'Z ', 1).replace("[event: ]:", '-', 1)
-        else:
-            logs = logs + "\n\n" + line.strip()
-            
-    logs = logs.lstrip().split('\n\n')
+    logs = re.findall(r"(^\d{4}-\d{2}-\d{2}T\d{2}:\d+:\d+\.*\d*Z(?:.|\n)+?)(?:(?=^\d{4}-\d{2}-\d{2}T\d{2}:\d+:\d+\.*\d*Z)|\Z)", response.text, re.MULTILINE)
+    logs = [log.strip() for log in logs]
 
     return logs, end_time
 
