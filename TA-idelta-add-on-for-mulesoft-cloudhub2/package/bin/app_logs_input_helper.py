@@ -83,13 +83,12 @@ def get_app_logs(logger: logging.Logger,access_token: str, org_id: str, env_id: 
     headers = {
         'Authorization': 'Bearer ' + access_token
     }
-    end_time = (datetime.now().timestamp() * 1000) - MULESOFT_LOGGING_LAG_MS
-    response = requests.get(endpoint, headers=headers, params={'startTime': int(last_log * 1000) + 1,
-                                                               'endTime': int(end_time)})
+    end_time = (datetime.now().timestamp()) - (MULESOFT_LOGGING_LAG_MS / 1000)
+    response = requests.get(endpoint, headers=headers, params={'startTime': int(last_log * 1000.0),
+                                                               'endTime': int(end_time * 1000.0)})
     
     logger.info("Response Code from App Logs API call: " + str(response.status_code))
-    logger.debug(f"Requesting logs from {endpoint} from {int(last_log * 1000) + 1} until {int(end_time)}")
-    logger.debug("Response from App Logs ID API: " + response.text)
+    logger.debug(f"Requesting logs from {endpoint} from {int(last_log * 1000)} until {int(end_time * 1000)}")
     
     if not response.text:
         logger.info("Response from App Logs is empty, no new logs")
