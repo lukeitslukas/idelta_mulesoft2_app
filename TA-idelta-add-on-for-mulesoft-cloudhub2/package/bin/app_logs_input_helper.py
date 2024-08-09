@@ -18,6 +18,7 @@ from splunklib import modularinput as smi
 
 ADDON_NAME = "TA-idelta-add-on-for-mulesoft-cloudhub2"
 REST_ROOT = "mulesoft_cloudhub"
+MULESOFT_LOGGING_LAG_MS = 1000
 
 def get_bearer_token(clientid: str, clientsecret: str) -> str:
     # get bearer token
@@ -82,16 +83,16 @@ def get_app_logs(logger: logging.Logger,access_token: str, org_id: str, env_id: 
     headers = {
         'Authorization': 'Bearer ' + access_token
     }
-    current_time = datetime.now().timestamp()
-    response = requests.get(endpoint, headers=headers, params={'startTime': int(last_log * 1000) + 1,
-                                                               'endTime': int(current_time * 1000.0)})
+    end_time = (datetime.now().timestamp()) - (MULESOFT_LOGGING_LAG_MS / 1000)
+    response = requests.get(endpoint, headers=headers, params={'startTime': int(last_log * 1000.0),
+                                                               'endTime': int(end_time * 1000.0)})
     
     logger.info("Response Code from App Logs API call: " + str(response.status_code))
-    logger.debug("Response from App Logs ID API: " + response.text)
+    logger.debug(f"Requesting logs from {endpoint} from {int(last_log * 1000)} until {int(end_time * 1000)}")
     
     if not response.text:
         logger.info("Response from App Logs is empty, no new logs")
-        return [], current_time
+        return [], end_time
     
     logs = ""
         
@@ -114,7 +115,7 @@ def get_app_logs(logger: logging.Logger,access_token: str, org_id: str, env_id: 
             
     logs = logs.lstrip().split('\n\n')
 
-    return logs, current_time
+    return logs, end_time
 
 
 def get_timestamp(log_str: str):
