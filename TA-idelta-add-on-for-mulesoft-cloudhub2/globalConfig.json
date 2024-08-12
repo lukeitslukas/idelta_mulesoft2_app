@@ -480,7 +480,7 @@
     "meta": {
         "name": "TA-idelta-add-on-for-mulesoft-cloudhub2",
         "restRoot": "mulesoft_cloudhub",
-        "version": "0.3.5Rcf6573f",
+        "version": "0.3.5R04ee65a",
         "displayName": "iDelta Add-On for Mulesoft Cloudhub 2.0",
         "schemaVersion": "0.2.7",
         "_uccVersion": "5.48.1"
