@@ -83,21 +83,18 @@ def get_app_logs(logger: logging.Logger,access_token: str, org_id: str, env_id: 
     headers = {
         'Authorization': 'Bearer ' + access_token
     }
+    
     end_time = (datetime.now().timestamp()) - (MULESOFT_LOGGING_LAG_MS / 1000)
     response = requests.get(endpoint, headers=headers, params={'startTime': int(last_log * 1000.0),
                                                                'endTime': int(end_time * 1000.0)})
-    
     logger.info("Response Code from App Logs API call: " + str(response.status_code))
     logger.debug(f"Requesting logs from {endpoint} from {int(last_log * 1000)} until {int(end_time * 1000)}")
     
     if not response.text:
         logger.info("Response from App Logs is empty, no new logs")
-        return [], end_time
+        return "", end_time
     
-    logs = re.findall(r"(^\d{4}-\d{2}-\d{2}T\d{2}:\d+:\d+\.*\d*Z(?:.|\n)+?)(?:(?=^\d{4}-\d{2}-\d{2}T\d{2}:\d+:\d+\.*\d*Z)|\Z)", response.text, re.MULTILINE)
-    logs = [log.strip() for log in logs]
-
-    return logs, end_time
+    return response.text, end_time
 
 
 def get_timestamp(log_str: str):
@@ -181,34 +178,25 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                 app_logs, new_timestamp = get_app_logs(logger, access_token, org_id, env_id, deployment_id, last_log)
                 
                 if len(app_logs) > 0:
-                    for app_log in app_logs:
-                        '''data = {
-                            "_raw": app_log,
-                            "environmentID": env_id,
-                            "envName": env_name,
-                            "orgID": org_id,
-                            "orgName": org_name
-                        }'''
-                        
-                        event_writer.write_event(
+                    event_writer.write_event(
                             smi.Event(
-                                    data=app_log,
+                                    data=app_logs,
                                     index=f'{input_item.get("index")}',
                                     sourcetype=f'mulesoft:log4j',
-                                    source=f'{input_name}/{deployment_name}',
-                                    time=get_timestamp(app_log)
+                                    source=f'{input_name}/{deployment_name}'
                                 )
                             )
                     
                     checkpoint.update(deployment_id, str(new_timestamp))
                         
                     log.events_ingested(
-                        logger,
-                        f'{input_name}/{deployment_name}',
-                        f'mulesoft:log4j',
-                        len(app_logs),
+                        logger=logger,
+                        modular_input_name=f'{input_name}/{deployment_name}',
+                        sourcetype=f'mulesoft:log4j',
+                        n_events=1,
                         index=f'{input_item.get("index")}'
                     )
+                    
             log.modular_input_end(logger, normalized_input_name)
         except Exception as e:
             log.log_exception(logger, e, exc_label="app_logs_input_exception", msg_before="Exception raised while ingesting data for app_logs_input: ")
