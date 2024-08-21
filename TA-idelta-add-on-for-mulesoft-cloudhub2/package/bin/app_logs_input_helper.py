@@ -61,7 +61,6 @@ def get_deployments(logger:logging.Logger, access_token: str, org_id: str, env_i
 
 
 def get_specification_id(logger: logging.Logger, access_token: str, org_id: str, env_id: str, deployment_id: str):
-def get_specification_id(logger: logging.Logger, access_token: str, org_id: str, env_id: str, deployment_id: str):
     endpoint = f'https://anypoint.mulesoft.com/amc/application-manager/api/v2/organizations/{org_id}/environments/{env_id}/deployments/{deployment_id}'
 
     headers = {
@@ -75,14 +74,8 @@ def get_specification_id(logger: logging.Logger, access_token: str, org_id: str,
     logger.debug("Response from specification ID API: " + response.text)
     
     return response.json()['desiredVersion']
-    logger.info("Response Code from deployments API call: " + str(response.status_code))
-    logger.debug("Response from deployments API: " + response.text)
-    
-    return response.json()['desiredVersion']
 
 
-def get_app_logs(logger: logging.Logger, access_token: str, org_id: str, env_id: str, deployment_id: str, last_log: float):
-    spec_id = get_specification_id(logger, access_token, org_id, env_id, deployment_id)
 def get_app_logs(logger: logging.Logger,access_token: str, org_id: str, env_id: str, deployment_id: str, last_log: float):
     spec_id = get_specification_id(logger, access_token, org_id, env_id, deployment_id)
     # logs endpoint
@@ -203,7 +196,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter):
                 last_log = checkpoint.get(deployment_id) if checkpoint.get(deployment_id) is not None else 0.0
                 last_log = float(last_log)
                 
-                app_logs = get_app_logs(access_token, org_id, env_id, deployment_id, last_log)
+                app_logs, new_timestamp = get_app_logs(access_token, org_id, env_id, deployment_id, last_log)
                 
                 if len(app_logs) > 0:
                     event_writer.write_event(
